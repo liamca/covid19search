@@ -9,5 +9,5 @@ Bootstrap-Flask
 Flask-SQLAlchemy
 Flask-WTF
 numpy
-requests==2.10
+requests==2.20.0
 azure-storage-blob==2.1.0
