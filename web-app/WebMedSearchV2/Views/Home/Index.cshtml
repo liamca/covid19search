@@ -1,0 +1,129 @@
+﻿@{
+    ViewBag.Title = "Search Page";
+}
+
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+<script src="https://unpkg.com/gijgo@1.9.13/js/gijgo.min.js" type="text/javascript"></script>
+<link href="https://unpkg.com/gijgo@1.9.13/css/gijgo.min.css" rel="stylesheet" type="text/css" />
+
+<div class="row">
+    <nav class="col-md-3 d-none d-md-block bg-light sidebar">
+        <div class="sidebar-sticky">
+
+            <div style="margin:5px;padding-bottom-5px;">
+                <a href="javascript:void(0)" onclick="LoadGraph();"><b>Explore Graph Relationships</b>&nbsp;</a>
+            </div>
+
+
+            <div style="margin:5px;">
+                Start Date:
+            </div>
+            <div style="margin:5px;" class="input-group">
+                <input id="startPubDate" width="276" />
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" onclick="clearStartDate();" type="button">Clear</button>
+                </div>
+            </div>
+            <div style="margin:5px;">
+                End Date: 
+            </div>
+            <div style="margin:5px;" class="input-group">
+                <input id="endPubDate" width="276" />
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" onclick="clearEndDate();" type="button">Clear</button>
+                </div>
+            </div>
+
+            <ul class="nav flex-column">
+                @*<li class="nav-item">
+                @Html.Partial("~/Views/Partial/MultiLevelFacet.cshtml",
+                          new ViewDataDictionary { { "facetField", "terms" }, { "facetTitle", "Multi Level Terms" } })
+            </li>*@
+
+                @Html.Partial("~/Views/Partial/CheckBoxFacet.cshtml", new ViewDataDictionary { { "facetField", "journal" }, { "facetTitle", "Journal" }, { "collectionFlag", false } })
+                @Html.Partial("~/Views/Partial/CheckBoxFacet.cshtml", new ViewDataDictionary { { "facetField", "contributors" }, { "facetTitle", "Contributors" }, { "collectionFlag", true } })
+                @Html.Partial("~/Views/Partial/CheckBoxFacet.cshtml", new ViewDataDictionary { { "facetField", "bodyStructure" }, { "facetTitle", "Body Structures" }, { "collectionFlag", true } })
+                @*@Html.Partial("~/Views/Partial/CheckBoxFacet.cshtml", new ViewDataDictionary { { "facetField", "conditionQualifier" }, { "facetTitle", "Condition Qualifiers" }, { "collectionFlag", true } })*@
+                @Html.Partial("~/Views/Partial/CheckBoxFacet.cshtml", new ViewDataDictionary { { "facetField", "diagnosis" }, { "facetTitle", "Diagnosis" }, { "collectionFlag", true } })
+                @Html.Partial("~/Views/Partial/CheckBoxFacet.cshtml", new ViewDataDictionary { { "facetField", "examinationName" }, { "facetTitle", "Examination Names" }, { "collectionFlag", true } })
+                @*@Html.Partial("~/Views/Partial/CheckBoxFacet.cshtml", new ViewDataDictionary { { "facetField", "examinationRelation" }, { "facetTitle", "Examination Relations" }, { "collectionFlag", true } })*@
+                @Html.Partial("~/Views/Partial/CheckBoxFacet.cshtml", new ViewDataDictionary { { "facetField", "familyRelation" }, { "facetTitle", "Family Relations" }, { "collectionFlag", true } })
+                @*@Html.Partial("~/Views/Partial/CheckBoxFacet.cshtml", new ViewDataDictionary { { "facetField", "gender" }, { "facetTitle", "gender" }, { "Genders", false } })*@
+                @Html.Partial("~/Views/Partial/CheckBoxFacet.cshtml", new ViewDataDictionary { { "facetField", "gene" }, { "facetTitle", "Genes" }, { "collectionFlag", true } })
+                @Html.Partial("~/Views/Partial/CheckBoxFacet.cshtml", new ViewDataDictionary { { "facetField", "medicationClass" }, { "facetTitle", "Medication Classes" }, { "collectionFlag", true } })
+                @Html.Partial("~/Views/Partial/CheckBoxFacet.cshtml", new ViewDataDictionary { { "facetField", "medicationName" }, { "facetTitle", "Medication Names" }, { "collectionFlag", true } })
+                @*@Html.Partial("~/Views/Partial/CheckBoxFacet.cshtml", new ViewDataDictionary { { "facetField", "routeOrMode" }, { "facetTitle", "Route Or Modes" }, { "collectionFlag", true } })*@
+                @Html.Partial("~/Views/Partial/CheckBoxFacet.cshtml", new ViewDataDictionary { { "facetField", "symptomOrSign" }, { "facetTitle", "Symptom Or Signs" }, { "collectionFlag", true } })
+                @Html.Partial("~/Views/Partial/CheckBoxFacet.cshtml", new ViewDataDictionary { { "facetField", "treatmentName" }, { "facetTitle", "Treatment Names" }, { "collectionFlag", true } })
+                @Html.Partial("~/Views/Partial/CheckBoxFacet.cshtml", new ViewDataDictionary { { "facetField", "variant" }, { "facetTitle", "Variants" }, { "collectionFlag", true } })
+            </ul>
+        </div>
+    </nav>
+
+    <main role="main" class="col-md-8 ml-sm-auto col-lg-9 pt-3 px-4">
+        <div>
+            @Html.Partial("~/Views/Partial/SearchBox.cshtml")
+        </div>
+        @Html.Partial("~/Views/Partial/SearchResults.cshtml")
+    </main>
+
+</div>
+
+<script>
+    function LoadGraph() {
+        // Redirect to graph with current query
+        location.href = "/home/graph?q=" + searchParameters["search"];
+    }
+
+    $(function () {
+        var today = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+        $('#startPubDate').datepicker({
+            uiLibrary: 'bootstrap4',
+            iconsLibrary: 'fontawesome',
+            maxDate: function () {
+                return $('#endPubDate').val();
+            },
+            change: function (e) {
+                searchParameters["startPubDate"] = $('#startPubDate').val();
+                search();
+            }
+        });
+        $('#endPubDate').datepicker({
+            uiLibrary: 'bootstrap4',
+            iconsLibrary: 'fontawesome',
+            maxDate: today,
+            change: function (e) {
+                searchParameters["endPubDate"] = $('#endPubDate').val();
+                search();
+            }
+        });
+
+        // Load the q from url if needed
+        q = location.search.split('q=')[1];
+        if (q != undefined) {
+            if (q.length != null) {
+                $("#q").val(decodeURI(q));
+                searchParameters["search"] = $("#q").val();
+                search();
+            }
+        }
+
+        $("#q").focus()
+    });
+
+    function clearStartDate() {
+        $('#startPubDate').val('');
+        searchParameters["startPubDate"] = $('#startPubDate').val();
+        search();
+    }
+    function clearEndDate() {
+        $('#endPubDate').val('');
+        searchParameters["endPubDate"] = $('#endPubDate').val();
+        search();
+    }
+
+
+
+    
+</script>
+

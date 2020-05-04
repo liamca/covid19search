@@ -1,0 +1,1 @@
+docker tag vector-search-flask-sptag-covid19:latest [Azure Container Registry].azurecr.io/containers/vector-search-flask-sptag-covid19

@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <head>
+    <title>Semantic Search</title>
+    <meta name="robots" content="index, follow" />
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/themes/github.css">
+	
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+
+	
+  </head>
+
+    <div id="fb-root"></div>
+    <div class="container">
+      <section id="examples">
+        <!-- <div class="page-header"> -->
+          <!-- <h2>Examples</h2> -->
+        <!-- </div> -->
+
+        <div class="example example_objects_as_tags">
+		  <p id="contentDiv"></p>
+        </div>
+    </div>
+
+	<script>
+		
+		$(function() {
+			var json_file = '{{ data.json_file }}'
+		  
+		  	var searchAPI = "/getfulldoc";
+
+			$.ajax({
+				url: searchAPI,
+				data: JSON.stringify({'json_file': json_file}),
+				dataType: 'text',
+				beforeSend: function (request) {
+					request.setRequestHeader("Content-Type", "application/json");
+				},
+				type: "POST",
+				success: function(data) {
+					json = JSON.parse(data)
+					htmlString = '<h3>' + json["metadata"]["title"] + '</h3>'
+					htmlString += '<b>Paper ID:</b> ' + json["paper_id"] + '<br><br>'
+					
+					htmlString += '<h4>Authors</h4> <ul>'
+					for (var author in json["metadata"]["authors"])
+					{
+						htmlString += '<li>' + json["metadata"]["authors"][author]["first"] + ' '
+						for (var middle in json["metadata"]["authors"][author]["middle"])
+						{
+							htmlString += json["metadata"]["authors"][author]["middle"][middle] + ' '
+						}
+						htmlString += json["metadata"]["authors"][author]["last"] + '</li>'
+					}
+					htmlString += '</ul>'
+					
+					htmlString += '<h4>Abstract</h4> <ul>'
+					for (var text in json["abstract"])
+					{
+						htmlString += '<li>' + json["abstract"][text]["text"] + '</li>'
+					}
+					htmlString += '</ul>'
+
+					htmlString += '<h4>Body</h4>'
+					for (var text in json["body_text"])
+					{
+						htmlString += json["body_text"][text]["text"] + '<br><br>'
+					}
+				
+				
+					$('#contentDiv').html(htmlString)
+				},
+				error: function(error) {
+					console.log(error)
+				}
+			})
+
+		  
+		});
+		
+	</script>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/js/rainbow.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/js/language/generic.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/js/language/html.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/js/language/javascript.js"></script>
+	
+	<script src="js/globals.js"></script>
+	<script src="js/search.js"></script>
+
+	
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism.min.css">
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/prism.min.js'></script>
+    <script>
+        setTimeout(function(){
+            Prism.highlightAll();
+        }, 500)
+    </script>
+
+
+{% endblock %}

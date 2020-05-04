@@ -1,0 +1,107 @@
+{
+  "name": "covid19-indexer",
+  "description": "This indexer pulls data from the json files and runs them through the covid19 skillset.",
+  "dataSourceName": "small-ds-2",
+  "skillsetName": "covid19-skillset",
+  "targetIndexName": "covid19-index",
+  "disabled": null,
+  "schedule": null,
+  "parameters": {
+    "batchSize": null,
+    "maxFailedItems": 0,
+    "maxFailedItemsPerBatch": 0,
+    "base64EncodeKeys": null,
+    "configuration": {
+      "dataToExtract": "contentAndMetadata",
+      "parsingMode": "json"
+    }
+  },
+  "fieldMappings": [
+    {
+      "sourceFieldName": "paper_id",
+      "targetFieldName": "docID",
+      "mappingFunction": {
+        "name": "base64Encode"
+      }
+    }
+  ],
+  "outputFieldMappings": [
+    {
+      "sourceFieldName": "/document/metadata/title",
+      "targetFieldName": "title"
+    },
+    {
+      "sourceFieldName": "/document/metadata/authors/full_name",
+      "targetFieldName": "contributors"
+    },
+    {
+      "sourceFieldName": "/document/abstractContent",
+      "targetFieldName": "abstractContent"
+    },
+    {
+      "sourceFieldName": "/document/body",
+      "targetFieldName": "body"
+    },
+    {
+      "sourceFieldName": "/document/bodyStructure",
+      "targetFieldName": "bodyStructure"
+    },
+    {
+      "sourceFieldName": "/document/conditionQualifier",
+      "targetFieldName": "conditionQualifier"
+    },
+    {
+      "sourceFieldName": "/document/diagnosis",
+      "targetFieldName": "diagnosis"
+    },
+    {
+      "sourceFieldName": "/document/direction",
+      "targetFieldName": "direction"
+    },
+    {
+      "sourceFieldName": "/document/examinationName",
+      "targetFieldName": "examinationName"
+    },
+    {
+      "sourceFieldName": "/document/examinationRelation",
+      "targetFieldName": "examinationRelation"
+    },
+    {
+      "sourceFieldName": "/document/familyRelation",
+      "targetFieldName": "familyRelation"
+    },
+    {
+      "sourceFieldName": "/document/gender",
+      "targetFieldName": "gender"
+    },
+    {
+      "sourceFieldName": "/document/gene",
+      "targetFieldName": "gene"
+    },
+    {
+      "sourceFieldName": "/document/medicationClass",
+      "targetFieldName": "medicationClass"
+    },
+    {
+      "sourceFieldName": "/document/medicationName",
+      "targetFieldName": "medicationName"
+    },
+    {
+      "sourceFieldName": "/document/routeOrMode",
+      "targetFieldName": "routeOrMode"
+    },
+    {
+      "sourceFieldName": "/document/symptomOrSign",
+      "targetFieldName": "symptomOrSign"
+    },
+    {
+      "sourceFieldName": "/document/treatmentName",
+      "targetFieldName": "treatmentName"
+    },
+    {
+      "sourceFieldName": "/document/variant",
+      "targetFieldName": "variant"
+    }
+  ],
+  "cache": null
+}

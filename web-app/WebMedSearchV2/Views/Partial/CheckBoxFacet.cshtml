@@ -1,0 +1,83 @@
+﻿@*ToDo
+    - Right now collectionFlag is not working right, I might need to simply have a separate template
+    for when it is not a collection, also look at checkboxFacetClick()*@
+
+<div class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 ">
+    <b>@ViewData["facetTitle"]</b>
+</div>
+<li class="nav-item" id="@ViewData["facetField"]">
+</li>
+
+
+<script>
+    $(document).ready(function () {
+
+        // intialize the current state of the search parameters
+        $("#@ViewData["facetField"]").html("");
+
+        @*facetTypes['facets'].push({ "@ViewData["facetField"]": "checkboxFacet" });*@
+
+        // Register this facet
+        if ("@ViewData["collectionFlag"]" == "True")
+            facetTypes['facets'].push({ "@ViewData["facetField"]": "checkboxFacet" });
+        else
+            facetTypes['facets'].push({ "@ViewData["facetField"]": "checkboxFacetNonCollection" });
+    });
+
+    function refreshCheckboxFacet(field, facets, collectionFlag) {
+        // When search completes, it will call this to refresh the facets visible
+        var htmlString = "";
+
+        // First output the facet values that have been selected
+        for (var i = 0; i < facetTypes["selected"].length; i++) {
+            if (facetTypes["selected"][i]["field"] == field) {
+                htmlString += '<a class=\"nav-link\" href="javascript:void(0)" onclick="checkboxFacetRemove(\'' + facetTypes["selected"][i]["value"] + '\', \'' + field + '\', \'True\')">[X] ' + facetTypes["selected"][i]["value"] + '</a>';
+            }
+        }
+
+        for (var i = 0; i < facets.length; i++) {
+            // Make sure it is not already selected
+            var selected = false;
+            for (var j = 0; j < facetTypes["selected"].length; j++) {
+                if ((facetTypes["selected"][j]["field"] == field) &&
+                    (facetTypes["selected"][j]["value"] == facets[i].Value)) {
+                    selected = true;
+                }
+            }
+
+            // title=\"Tooltip on top\"
+            if ((!(selected)) && (facets[i].Value != ""))
+            {
+                htmlString += "<a id='" + facets[i].Value + "-" + field + "' class=\"nav-link active\" onclick=\"checkboxFacetClick('" + facets[i].Value.replace("'", " ") + "', '" + field + "', '" + collectionFlag + "');\" href=\"javascript:void(0);\"><span data-feather=\"home\"></span>> " + facets[i].Value + " (" + facets[i].Count + ")</a>";
+            }
+        }
+
+        $("#"+field).html(htmlString);
+    }
+
+    function checkboxFacetClick(facet, facetField, collectionFlag) {
+        // If they click on this it will become a filter, unless it is already a filter
+        // which will remove it as a filter
+        if (collectionFlag == "True")
+            searchParameters["filters"].push(facetField + "/any(t: t eq '" + facet + "')");
+        else
+            searchParameters["filters"].push(facetField + " eq '" + facet + "'");
+
+        facetTypes["selected"].push({ "field": facetField, "value": facet });
+
+        search();
+    }
+
+    function checkboxFacetRemove(facet, facetField, collectionFlag) {
+        if (collectionFlag == "True")
+            searchParameters["filters"].pop(facetField + "/any(t: t eq '" + facet + "')");
+        else
+            searchParameters["filters"].pop(facetField + " eq '" + facet + "'");
+
+        facetTypes["selected"].pop({ "field": facetField, "value": facet });
+        search();
+    }
+
+
+</script>
+

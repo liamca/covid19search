@@ -1,0 +1,65 @@
+﻿<div class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 ">
+    <b>@ViewData["facetTitle"]</b>
+</div>
+<li class="nav-item" id="@ViewData["facetField"]">
+</li>
+
+<script>
+    $(document).ready(function () {
+        // intialize the current state of the search parameters
+        $("#@ViewData["facetField"]").html("");
+
+        // Register this facet
+        facetTypes['facets'].push({ "@ViewData["facetField"]": "checkboxFacet" });
+
+    });
+
+    function refreshCheckboxFacet(field, facets) {
+        // When search completes, it will call this to refresh the facets visible
+        var htmlString = "";
+
+        // First output the facet values that have been selected
+        for (var i = 0; i < facetTypes["selected"].length; i++) {
+            if (facetTypes["selected"][i]["field"] == "@ViewData["facetField"]") {
+                htmlString += '<a class=\"nav-link\" href="javascript:void(0)" onclick="checkboxFacetRemove(\'' + facetTypes["selected"][i]["value"] + '\')">[X] ' + facetTypes["selected"][i]["value"] + '</a>';
+            }
+        }
+
+        for (var i = 0; i < facets.length; i++) {
+            // Make sure it is not already selected
+            var selected = false;
+            for (var j = 0; j < facetTypes["selected"].length; j++) {
+                if ((facetTypes["selected"][j]["field"] == "@ViewData["facetField"]") &&
+                    (facetTypes["selected"][j]["value"] == facets[i].Value)) {
+                    selected = true;
+                }
+            }
+
+            if (!(selected))
+                htmlString += "<a class=\"nav-link active\" onclick=\"checkboxFacetClick('" + facets[i].Value + "');\" href=\"javascript:void(0);\"><span data-feather=\"home\"></span>> " + facets[i].Value + " (" + facets[i].Count + ")</a>";
+        }
+        $("#@ViewData["facetField"]").html(htmlString);
+
+    }
+
+    function checkboxFacetClick(facet) {
+        // If they click on this it will become a filter, unless it is already a filter
+        // which will remove it as a filter
+        if ("@ViewData["collectionFlag"]" == "True")
+            searchParameters["filters"].push("@ViewData["facetField"]/any(t: t eq '" + facet + "')");
+        else
+            searchParameters["filters"].push("@ViewData["facetField"] eq '" + facet + "'");
+
+        facetTypes["selected"].push({ "field": "@ViewData["facetField"]", "value": facet });
+
+        search();
+    }
+
+    function checkboxFacetRemove(facet) {
+        facetTypes["selected"].pop({ "field": "@ViewData["facetField"]", "value": facet });
+        search();
+    }
+
+
+</script>
+

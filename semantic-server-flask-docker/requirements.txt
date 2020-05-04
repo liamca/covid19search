@@ -1,0 +1,13 @@
+spacy
+nltk
+pandas
+joblib
+pathlib
+pytest-shutil
+Flask
+Bootstrap-Flask
+Flask-SQLAlchemy
+Flask-WTF
+numpy
+requests==2.10
+azure-storage-blob==2.1.0

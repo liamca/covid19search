@@ -1,0 +1,1 @@
+az container create -g [Resource Group] --name vector-search-flask-sptag-covid19 --image [Azure Container Registry].azurecr.io/containers/vector-search-flask-sptag-covid19 --ip-address public --cpu 2 --memory 16 --registry-username [Registry UserName] --registry-password [Registry Password]

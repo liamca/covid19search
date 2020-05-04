@@ -1,0 +1,1 @@
+az container delete --resource-group [Resource Group] --name vector-search-flask-sptag-covid19

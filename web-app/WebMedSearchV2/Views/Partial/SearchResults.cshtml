@@ -1,0 +1,198 @@
+﻿<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+    <div id="searchResults"></div>
+</div>
+
+
+<script>
+
+    var docIDOrder = []
+    var docIDScore = []
+
+
+    function onlyUnique(value, index, self) {
+        return self.indexOf(value) === index;
+    }
+
+    function parseJsonDate(jsonDateString) {
+        if (jsonDateString != null)
+            return formatDate(new Date(parseInt(jsonDateString.replace('/Date(', ''))));
+        else 
+            return "[No Date Available]"
+    }
+
+
+    function formatDate(date) {
+        var d = new Date(date),
+            month = '' + (d.getMonth() + 1),
+            day = '' + d.getDate(),
+            year = d.getFullYear();
+
+        if (month.length < 2) month = '0' + month;
+        if (day.length < 2) day = '0' + day;
+
+        return [year, month, day].join('-');
+    }
+
+    function openDocument(docID, rankOrder) {
+        appInsights.trackEvent("ClickV2", {
+	        SearchServiceName: "covid-19",
+	        IndexName: "covid-19",
+	        QueryTerms: searchParameters.search,
+            Facets: searchParameters.filters,
+            StartPubDate: searchParameters.startPubDate,
+            EndPubDate: searchParameters.endPubDate,
+            DocID: docID,
+            RankOrder: docIDOrder,
+            Scores: docIDScore
+        });
+
+        window.open(
+            "/home/document?docid=" + docID + "&query=" + searchParameters.search, "_blank"); 
+
+    }
+
+    function displayMoreLikeThisResults(results, totalDocs) {
+
+        $("#searchResults").html("<div style='padding-bottom:10px;'>Total Documents: " + totalDocs + "</div>");
+        for (var i = 0; i < results.length; i++) {
+            docTitle = results[i].title;
+            if (docTitle.length < 1)
+                docTitle = '[No Document Title]'
+            var htmlString = "<div class=\"card-deck mb-3 text-left\"><div class=\"card mb-12 box-shadow\"><div class=\"card-header\"><h4 class=\"my-0 font-weight-normal\"><a href='javascript:void(0);' onclick='openDocument(\"" + results[i].docID + "\", \"" + i + "\");' >" + docTitle + "</a></h4>";
+            htmlString += "Journal: " + results[i].journal + "</br> ";
+            htmlString += "Published: " + parseJsonDate(results[i].pubDate) + "</br> ";
+
+            htmlString += "Contributors: "
+            var uniques = results[i].contributors.filter(onlyUnique);
+            for (f = 0; f < uniques.length; f++) {
+                htmlString += results[i].contributors[f] + ", ";
+            }
+
+            htmlString = htmlString.substring(0, htmlString.length - 2)
+            htmlString += "</div>";
+
+            htmlString += "<div class=\"card-body\"><p class=\"card-text\">";
+
+            if (results[i].abstractContent.length > 0)
+                htmlString += results[i].abstractContent.substring(0, Math.min(500, results[i].abstractContent.length)) + "...&nbsp;";
+            else
+                htmlString += "[No abstract available]";
+            htmlString += "</p>";
+
+            htmlString += "<p><a href='javascript:void(0);' onclick='moreLikeThis(\"" + results[i].docID + "\");'>[Find documents Like This]</a>&nbsp;&nbsp;&nbsp;";
+            htmlString += "</p>";
+
+            htmlString += "</div></div></div>";
+            $("#searchResults").append(htmlString);
+
+        }
+    }
+
+    function displaySearchResults(results, totalDocs) {
+
+        $("#searchResults").html("<div style='padding-bottom:10px;'>Total Documents: " + totalDocs + "</div>");
+        for (var i = 0; i < results.length; i++) {
+            docIDOrder.push(results[i].Document.docID)
+            docIDScore.push(results[i].Score)
+            docTitle = results[i].Document.title;
+            if (docTitle.length < 1)
+                docTitle = '[No Document Title]'
+            var htmlString = "<div class=\"card-deck mb-3 text-left\"><div class=\"card mb-12 box-shadow\"><div class=\"card-header\"><h4 class=\"my-0 font-weight-normal\"><a href='javascript:void(0);' onclick='openDocument(\"" + results[i].Document.docID + "\", \"" + i + "\");' >" + docTitle + "</a></h4>";
+            htmlString += "Journal: " + results[i].Document.journal + "</br> ";
+            htmlString += "Published: " + parseJsonDate(results[i].Document.pubDate) + "</br> ";
+
+            htmlString += "Contributors: "
+            var uniques = results[i].Document.contributors.filter(onlyUnique);
+            for (f = 0; f < uniques.length; f++) {
+                htmlString += results[i].Document.contributors[f] + ", ";
+            }
+
+            htmlString = htmlString.substring(0, htmlString.length-2)
+            htmlString += "</div>";
+
+            htmlString += "<div class=\"card-body\"><p class=\"card-text\">";
+            maxHighlightCount = 5
+            highlightCount = 0
+
+            if (results[i].Highlights != null) {
+                if (results[i].Highlights.abstractContent != null) {
+                    for (f = 0; f < results[i].Highlights.abstractContent.length; f++) {
+                        if (highlightCount <= maxHighlightCount) {
+                            highlightCount += 1
+                            htmlString += results[i].Highlights.abstractContent[f] + "...&nbsp;";
+                        }
+                    }
+                }
+                if (results[i].Highlights.body != null) {
+                    for (f = 0; f < results[i].Highlights.body.length; f++) {
+                        if (highlightCount <= maxHighlightCount) {
+                            highlightCount += 1
+                            htmlString += results[i].Highlights.body[f] + "...&nbsp;";
+                        }
+                    }
+                }
+            }
+            else {
+                if (results[i].Document.abstractContent.length > 0)
+                    htmlString += results[i].Document.abstractContent.substring(0, Math.min(500, results[i].Document.abstractContent.length)) + "...&nbsp;";
+                else 
+                    htmlString += "[No abstract available]";
+            }
+            htmlString += "</p>";
+
+            htmlString += "<p class=\"card-text\">";
+            // Ensure results are unique
+            var uniques = results[i].Document.diagnosis.filter(onlyUnique);
+            for (f = 0; f < uniques.length; f++) {
+                htmlString += "<span class=\"badge badge-primary\">" + results[i].Document.diagnosis[f] + "</span>&nbsp;";
+            }
+
+            htmlString += "</p><p><a href='javascript:void(0);' onclick='moreLikeThis(\"" + results[i].Document.docID + "\");'>[Find Documents Like This]</a>&nbsp;&nbsp;&nbsp;";
+            htmlString += "</p>";
+
+            //htmlString += "</p><p>Find documents by: <a href='javascript:void(0);' onclick='moreLikeThis(\"contributors\", \"" + results[i].Document.docID + "\");'>[Similar Authors]</a>&nbsp;&nbsp;&nbsp;";
+            //htmlString += "<a href='javascript:void(0);' onclick='moreLikeThis(\"contributors\", \"" + results[i].Document.docID + "\");'>[Similar Anatomical Sites]</a>&nbsp;&nbsp;&nbsp;";
+            //htmlString += "<a href='javascript:void(0);' onclick='moreLikeThis(\"anatomicalSiteMentionConcepts\", \"" + results[i].Document.docID + "\");'>[Similar Disease & Disorders]</a>&nbsp;&nbsp;&nbsp;";
+            //htmlString += "<a href='javascript:void(0);' onclick='moreLikeThis(\"diseaseDisorderConcepts\", \"" + results[i].Document.docID+ "\");'>[Similar Anatomical Sites]</a>&nbsp;&nbsp;&nbsp;";
+            //htmlString += "<a href='javascript:void(0);' onclick='moreLikeThis(\"medicationMentionConcepts\", \"" + results[i].Document.docID + "\");'>[Similar Medical Mentions]</a>&nbsp;&nbsp;&nbsp;";
+            //htmlString += "<a href='javascript:void(0);' onclick='moreLikeThis(\"signSymptomMentionConcepts\", \"" + results[i].Document.docID+ "\");'>[Similar Signs & Symptoms]</a>&nbsp;&nbsp;&nbsp;";
+           //htmlString += "</p>";
+
+            htmlString += "</div></div></div>";
+            $("#searchResults").append(htmlString);
+
+            appInsights.trackEvent("Search", {
+	            SearchServiceName: "covid-19",
+	            IndexName: "covid-19",
+	            QueryTerms: searchParameters.search,
+                Facets: searchParameters.filters,
+                StartPubDate: searchParameters.startPubDate,
+                EndPubDate: searchParameters.endPubDate
+            });
+        }
+
+    }
+
+    function moreLikeThis(docID) {
+        $.ajax({
+            type: "POST", url: "/search/moreLikeThis",
+            success: function (data) {
+                searchResults = JSON.parse(data);
+                displayMoreLikeThisResults(searchResults["value"], searchResults["@@odata.count"]);
+            },
+            data: {
+                "docid": docID,
+                "take": searchParameters.take,
+                "select": searchParameters.select,
+                "facets": searchParameters.facets,
+                "filters": searchParameters.filters,
+                "startPubDate": searchParameters.startPubDate,
+                "endPubDate": searchParameters.endPubDate
+            },
+            accept: 'application/json'
+        });
+
+    }
+
+
+</script>

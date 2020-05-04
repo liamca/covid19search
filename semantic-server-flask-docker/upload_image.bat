@@ -1,0 +1,1 @@
+docker push [Azure Container Registry Name].azurecr.io/containers/vector-search-flask-sptag-covid19

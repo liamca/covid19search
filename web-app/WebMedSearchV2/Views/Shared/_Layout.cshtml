@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Created using Azure Cognitive Search with data provide by https://pages.semanticscholar.org/coronavirus-research">
+    <meta name="author" content="Liam Cavanagh - [liamca At Microsoft dot com]">
+    <link rel="icon" href="~/Content/favicon.ico">
+    <title>Azure Cognitive Search - Covid-19 Search Demo</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")
+
+    <script src="~/Scripts/search.js"></script>
+
+    <link href="~/Content/Site.css" rel="stylesheet" />
+</head>
+<body>
+    <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+        <a class="navbar-brand col-sm-4 col-md-3 mr-0" href="/">Covid-19 Search</a>
+        <a class="navbar-brand col-sm-4 col-md-3 mr-0" href="/"></a>
+        <nav class="my-2 my-md-0 mr-md-3">
+            <a class="p-2 text-white" href="/home/updates" target="_blank">Latest Application Updates</a>
+            <a class="p-2 text-white" href="https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR7GrnscF2PZAmLeZjikTcqdUQzdZQldKTzdSUkQwU1NWNTY4SU1INlRWVC4u" target="_blank">Feedback and Suggestions</a>
+            <a class="p-2 text-white" href="https://pages.semanticscholar.org/coronavirus-research" target="_blank">Data provided by Semantic Scholar</a>
+        </nav>
+        @*<ul class="nav navbar-nav ml-auto">
+            <li class="nav-item" style="padding-right:15px;">
+                <a class="nav-link" href="/" target="_blank">Feedback and Suggestions</a>
+            </li>
+            <li class="nav-item" style="padding-right:15px;">
+                <a class="nav-link" href="https://pages.semanticscholar.org/coronavirus-research" target="_blank">Semantic Scholar</a>
+            </li>
+        </ul>*@
+        @*https://pages.semanticscholar.org/coronavirus-research*@
+    </nav>
+
+    <div class="container-fluid">
+        @RenderBody()
+    </div>
+
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+
+<script type="text/javascript">
+    var appInsights = window.appInsights || function (config) { function r(config) { t[config] = function () { var i = arguments; t.queue.push(function () { t[config].apply(t, i) }) } } var t = { config: config }, u = document, e = window, o = "script", s = u.createElement(o), i, f; s.src = config.url || "//az416426.vo.msecnd.net/scripts/a/ai.0.js"; u.getElementsByTagName(o)[0].parentNode.appendChild(s); try { t.cookie = u.cookie } catch (h) { } for (t.queue = [], i = ["Event", "Exception", "Metric", "PageView", "Trace", "Dependency"]; i.length;)r("track" + i.pop()); return r("setAuthenticatedUserContext"), r("clearAuthenticatedUserContext"), config.disableExceptionTracking || (i = "onerror", r("_" + i), f = e[i], e[i] = function (config, r, u, e, o) { var s = f && f(config, r, u, e, o); return s !== !0 && t["_" + i](config, r, u, e, o), s }), t }
+        ({
+            instrumentationKey: "6ce3ee86-0c8e-4f5a-92b0-e5f19179ba56"
+        });
+    window.appInsights = appInsights;
+
+</script>
+
+
+</body>
+</html>

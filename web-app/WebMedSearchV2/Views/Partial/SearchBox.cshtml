@@ -1,0 +1,286 @@
+﻿<input class="form-control w-100" type="text" id="q" name="input" placeholder="Search" aria-label="Search">
+<p style="padding-top:5px;" id="semanticTermsDiv"></p>
+
+<link href="~/Content/tagify.css" rel="stylesheet" />
+<script src="~/Scripts/tagify/tagify.min.js"></script>
+<script src="~/Scripts/tagify/jQuery.tagify.min.js"></script>
+
+<script>
+    //$(function () {
+    //    $("#q").autocomplete({
+    //        source: function (request, response) {
+    //            $.getJSON("/search/autocomplete",
+    //                { term: $('#q').val(), fuzzy: true },
+    //                response);
+    //        },
+    //        minLength: 2,
+    //        select: function (event, ui) {
+    //            currentPage = 1;
+    //            searchParameters["search"] = $("#q").val();
+    //            search();
+    //        }
+    //    });
+    //});
+
+    var input = document.querySelector('input[name=input]'),
+	whitelist = [],
+
+	// init Tagify script on the above inputs
+	tagify = new Tagify(input, {
+		keepInvalidTags: true,
+		duplicates: false,
+		dropdown: 
+		{
+			fuzzySearch: true
+		}
+		// after 2 characters typed, all matching values from this list will be suggested in a dropdown
+		// whitelist: [].concat(whitelist)
+	})
+
+    tagify.on('add', onAddTag)
+        .on('remove', onRemoveTag)
+        .on('input', onInput)
+        //.on('edit', onTagEdit)
+        //.on('invalid', onInvalidTag)
+        //.on('click', onTagClick)
+        //.on('focus', onTagifyFocusBlur)
+        //.on('blur', onTagifyFocusBlur)
+        //.on('dropdown:hide dropdown:show', e => console.log(e.type))
+        .on('dropdown:select', onDropdownSelect)
+
+    // tag added callback
+	function onAddTag(e){
+		console.log("onAddTag: ", e.detail);
+		console.log("original input value: ", input.value)
+        findSimilarTerms(input.value)
+		search()
+    }
+
+	function addTag(tag)
+	{
+		tagify.addTags(tag)
+	}
+
+
+	// tag remvoed callback
+	function onRemoveTag(e){
+		//console.log("onRemoveTag:", e.detail, "tagify instance value:", tagify.value)
+        findSimilarTerms(e.detail.value)
+		search()
+	}
+
+	// on character(s) added/removed (user is typing/deleting)
+	function onInput(e){
+		//console.log("onInput: ", e.detail);
+		tagify.settings.whitelist.length = 0; // reset current whitelist
+		tagify.loading(true).dropdown.hide.call(tagify) // show the loader animation
+
+		execTypeAhead(e.detail.value)
+			.then(data => {
+			    //console.log(data)
+			    tagify.settings.whitelist.splice(0, data.length, ...data)
+			    // render the suggestions dropdown. "newValue" is when "input" event is called while editing a tag
+			    tagify.loading(false).dropdown.show.call(tagify, e.detail.value);
+			})
+			.catch(error => {
+    			console.log(error)
+			})
+	}
+
+	function onDropdownSelect(e){
+		// User chose an item, so do a vector search to find potentially similar terms
+		//console.log("onDropdownSelect: ", e.detail)
+        findSimilarTerms(e.detail.value)
+		//search()
+	}
+		
+		
+	//function findSimilarTerms(new_term)
+	//{
+	//	// Get all the terms added to the search box
+	//	existing_terms = eval($("input").val())
+	//	term_list = []
+	//	if (new_term != undefined)
+	//		term_list = [new_term]
+				
+	//	if (existing_terms != undefined)
+	//		for (var term in existing_terms)
+	//			term_list.push(existing_terms[term]["value"])
+				
+	//	$("#suggestionsDiv").html("Finding similar terms...")
+
+	//	if (term_list.length > 0)
+	//		findSimilarTerms(term_list)
+	//			.then(data => {
+	//			console.log(data)
+					
+	//			htmlString = '<b>Similar Terms:</b> '
+	//			for (item in data)
+	//				if (term_list.includes(data[item]) == false)
+	//					htmlString += '<a href="javascript:void(0)" onclick="addTag(\'' + data[item].trim() + '\')">' + data[item] + '</a>&nbsp;&nbsp;&nbsp;'
+					
+	//			$("#suggestionsDiv").html(htmlString + '<hr>')
+					
+					
+	//			})
+	//			.catch(error => {
+	//			console.log(error)
+	//			$("#suggestionsDiv").html("Error:" + error)
+
+	//			})
+	//	else
+	//		$("#suggestionsDiv").html("")
+
+ //   }
+
+    function execTypeAhead(q) {
+		return new Promise((resolve, reject) => {
+
+			$.ajax({
+				type: "POST", url: "/search/autocomplete",
+				success: function (data) {
+					//searchResults = data;
+					resolve(data);
+
+				},
+				data: {
+					"term": q
+				},
+				accept: 'application/json'
+			});
+
+		});
+
+	}
+
+
+
+	//function execFindSimilarTerms(q) {
+	//	var searchAPI = "termVectorSearch";
+	//	return new Promise((resolve, reject) => {
+	//		$.ajax({
+	//			url: searchAPI,
+	//			data: JSON.stringify({'terms': q}),
+	//			dataType: 'json',
+	//			beforeSend: function (request) {
+	//				request.setRequestHeader("Content-Type", "application/json");
+	//			},
+	//			type: "POST",
+	//			success: function(data) {
+	//				json_data = eval(data)
+	//				availableTags = json_data[1];
+				
+	//				// Add the resulting documents to the search results
+	//				doccounter = 0
+	//				for (docid in json_data[3])
+	//				{
+	//					downloadDoc(json_data[3][docid], "searchResultsDiv" + doccounter)
+	//					doccounter += 1
+	//				}
+
+	//				resolve(availableTags);
+	//			},
+	//			error: function(error) {
+	//				reject(error)
+	//			},
+	//		})
+	//	})
+	//}
+
+
+    //$("#q").keypress(function (event) {
+    //    searchParameters["search"] = $("#q").val();
+    //    if (event.keyCode == 13) {
+    //        currentPage = 1;
+    //        search();
+    //        //$("#q").autocomplete('close');
+    //    }
+    //});
+
+
+    function search() {
+        return new Promise((resolve, reject) => {
+			searchParameters["search"] = $("#q").val()
+			$.ajax({
+				type: "POST", url: "/search/docs",
+				success: function (data) {
+					searchResults = data;
+					for (var i = 0; i < facetTypes.facets.length; i++) {
+						var currentFacet = Object.keys(facetTypes.facets[i]).toString();
+						if (facetTypes.facets[i][currentFacet] == "checkboxFacet") {
+							refreshCheckboxFacet(currentFacet, searchResults.Facets[currentFacet], 'True');
+						}
+						else if (facetTypes.facets[i][currentFacet] == "checkboxFacetNonCollection") {
+							refreshCheckboxFacet(currentFacet, searchResults.Facets[currentFacet], 'False');
+						}
+						// ... add other facet types here...
+					}
+
+
+					//$('[data-toggle="tooltip"]').hover(function () {
+					//    var e = $(this);
+
+					//    $.post('/search/popup',
+					//        {
+					//            term: e[0].id
+					//        },
+					//        function (data) {
+					//            e.attr('title', data);
+					//        });
+
+					//});
+
+					displaySearchResults(searchResults.Results, searchResults.Count);
+				},
+				data: {
+					"search": searchParameters.search,
+					"skip": searchParameters.skip,
+					"take": searchParameters.take,
+					"select": searchParameters.select,
+					"facets": searchParameters.facets,
+					"filters": searchParameters.filters,
+					"highlights": searchParameters.highlights,
+					"startPubDate": searchParameters.startPubDate,
+					"endPubDate": searchParameters.endPubDate
+				},
+				accept: 'application/json'
+			});
+		});
+
+
+    }
+
+    function findSimilarTerms(q) {
+		return new Promise((resolve, reject) => {
+			searchParameters["search"] = $("#q").val()
+			$.ajax({
+				type: "POST", url: "/search/GetSemanticTerms",
+				success: function (data) {
+					semanticTerms = '';
+					var counter = 0;
+					for (var key in data) {
+						counter += 1
+						semanticTerms += "<a href='javascript:void(0)' onclick='addTag(\"" + key + "\");'>" + '[' + key + '] ' + "</a>";
+
+					}
+					if (counter > 0)
+						semanticTerms = '<b>Click to Add Semantically Similar Terms:</b> ' + semanticTerms;
+
+					$("#semanticTermsDiv").html(semanticTerms);
+				},
+				data: {
+					"search": searchParameters["search"]
+				},
+				accept: 'application/json'
+			});
+		});
+
+    }
+    function appendTextToSearchBox(term) {
+        var text = $('#q');
+        text.val(text.val() + ' "' + term + '"');
+        searchParameters.search = text.val();
+        search();
+    }
+
+</script>

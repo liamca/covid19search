@@ -1,0 +1,263 @@
+﻿@{
+    ViewBag.Title = "Semantic Graph";
+}
+
+
+<script src="//d3js.org/d3.v3.min.js"></script>
+
+<script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+<link rel="stylesheet" href="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.11.4/themes/smoothness/jquery-ui.css">
+
+<style>
+    select.btn-mini {
+        height: auto;
+        line-height: 14px;
+    }
+
+    /* this is optional (see below) */
+    select.btn {
+        -webkit-appearance: button;
+        -moz-appearance: button;
+        appearance: button;
+        padding-right: 16px;
+    }
+
+    select.btn-mini + .caret {
+        margin-left: -20px;
+        margin-top: 9px;
+    }
+</style>
+<div class="row" style="padding:10px;">
+    @*<p id="helpText">Try searching for terms such as: </p>*@
+    <div class="col-md-4;">
+        <input class="form-control" type="text" id="q" placeholder="Search">
+        @*<input type="submit" class="typeahead search-submit" value=" " onclick="SearchButton();">*@
+        <a href="javascript:void(0)" onclick="LoadHomePage();">Back to Document Search >></a></br>
+        <span id="infoBox"></span>
+
+    </div>
+    <div class="col-md-4;">
+        <div class="btn btn-mini">
+            <select id="nodeType" onchange="SearchButton();">
+                <option value="contributors">Contributors</option>
+                <option value="bodyStructure">Body Structures</option>
+                <option value="diagnosis">Diagnosis</option>
+                <option value="examinationName">Examination Names</option>
+                <option value="familyRelation">Family Relations</option>
+                <option value="gene">Genes</option>
+                <option value="medicationClass">Medication Classes</option>
+                <option value="medicationName">Medication Names</option>
+                <option value="symptomOrSign">Symptom Or Signs</option>
+                <option value="treatmentName">Treatment Names</option>
+                <option value="variant">Variants</option>
+
+            </select>
+
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div id="fdGraph"></div>
+</div> <!-- end .container -->
+
+<script type="text/javascript">
+
+    var w = 1600;
+    var h = 800;
+    var linkDistance = 250;
+
+    var colors = d3.scale.category10();
+
+    var dataset = {};
+
+    function LoadFDGraph() {
+        $("#fdGraph").html('');
+        var svg = d3.select("#fdGraph").append("svg").attr({ "width": w, "height": h });
+
+        var force = d3.layout.force()
+            .nodes(dataset.nodes)
+            .links(dataset.edges)
+            .size([w, h])
+            .linkDistance([linkDistance])
+            .charge([-500])
+            .theta(0.1)
+            .gravity(0.05)
+            .start();
+
+        var edges = svg.selectAll("line")
+            .data(dataset.edges)
+            .enter()
+            .append("line")
+            .attr("id", function (d, i) { return 'edge' + i })
+            .attr('marker-end', 'url(#arrowhead)')
+            .style("stroke", "#ccc")
+            .style("pointer-events", "none");
+
+        var nodes = svg.selectAll("circle")
+            .data(dataset.nodes)
+            .enter()
+            .append("circle")
+            .attr({ "r": 20 })
+            .style("fill", function (d, i) { return "#9ECAE1"; })	// change "#9ECAE1" to colors(i) to get different colors
+            .call(force.drag)
+
+        nodes.on("dblclick.zoom", function (d) {
+            var newTerm = d.name;
+            var currentSearch = $("#q").val();
+            $("#q").val(currentSearch + "+\"" + newTerm + "\"");
+            SearchButton();
+        });
+
+        var nodelabels = svg.selectAll(".nodelabel")
+            .data(dataset.nodes)
+            .enter()
+            .append("text")
+            .attr({
+                "x": function (d) { return d.x; },
+                "y": function (d) { return d.y; },
+                "class": "nodelabel",
+                "stroke": "black"
+            })
+            .text(function (d) { return d.name; });
+
+        var edgepaths = svg.selectAll(".edgepath")
+            .data(dataset.edges)
+            .enter()
+            .append('path')
+            .attr({
+                'd': function (d) { return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y },
+                'class': 'edgepath',
+                'fill-opacity': 0,
+                'stroke-opacity': 0,
+                'fill': 'blue',
+                'stroke': 'red',
+                'id': function (d, i) { return 'edgepath' + i }
+            })
+            .style("pointer-events", "none");
+
+        svg.append('defs').append('marker')
+            .attr({
+                'id': 'arrowhead',
+                'viewBox': '-0 -5 10 10',
+                'refX': 25,
+                'refY': 0,
+                'orient': 'auto',
+                'markerWidth': 10,
+                'markerHeight': 10,
+                'xoverflow': 'visible'
+            })
+            .append('svg:path')
+            .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
+            .attr('fill', '#ccc')
+            .attr('stroke', '#ccc');
+
+
+        force.on("tick", function () {
+
+            edges.attr({
+                "x1": function (d) { return d.source.x; },
+                "y1": function (d) { return d.source.y; },
+                "x2": function (d) { return d.target.x; },
+                "y2": function (d) { return d.target.y; }
+            });
+
+            nodes.attr({
+                "cx": function (d) { return d.x; },
+                "cy": function (d) { return d.y; }
+            });
+
+            nodelabels.attr("x", function (d) { return d.x; })
+                .attr("y", function (d) { return d.y; });
+
+            edgepaths.attr('d', function (d) {
+                var path = 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
+                //console.log(d)
+                return path
+            });
+
+        })
+            ;
+    };
+
+    var q = '';
+
+    $(function () {
+
+        //var query = window.location.search.substring(1);
+        //var vars = query.split("&");
+        //queryTermsArray = JSON.parse(decodeURIComponent((query.split("&")[1].substring(6)+'').replace(/\+/g, '%20')))
+        //queryTerms = ''
+        //for (var qt in queryTermsArray) {
+        //    queryTerms += queryTermsArray[qt]["value"] + " "
+        //}
+
+
+        q = location.search.split('q=')[1];
+        queryTermsArray = JSON.parse(decodeURIComponent(q.replace(/\+/g, '%20')))
+        queryTerms = ''
+        for (var qt in queryTermsArray) {
+            queryTerms += queryTermsArray[qt]["value"] + " "
+        }
+
+        if (q.length != null) {
+            $('#q').val(queryTerms);
+            getFDNodes(queryTerms);
+        }
+
+        //$("#q").autocomplete({
+        //    source: function (request, response) {
+        //        $.getJSON("/search/autocomplete",
+        //            { term: $('#q').val(), fuzzy: true },
+        //            response);
+        //    },
+        //    minLength: 2,
+        //    select: function (event, ui) {
+        //        currentPage = 1;
+        //        getFDNodes(ui.item.value);
+        //    }
+        //});
+
+        $("#q").keypress(function (event) {
+            if (event.keyCode == 13) {
+                currentPage = 1;
+                var term = $("#q").val();
+                getFDNodes(term);
+                $("#q").autocomplete('close');
+            }
+        });
+
+    });
+
+    function getFDNodes(q) {
+        //get all the nodes for the force directed graph
+        $("#fdGraph").html('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Loading graph, please wait...');
+
+        $.post('/search/GetFDNodes',
+            {
+                q: q,
+                nodeType: $("#nodeType").val()
+            },
+            function (data) {
+                dataset = JSON.parse(data);
+                LoadFDGraph();
+            });
+
+        $("#infoBox").html("Drag nodes to re-arrange or double click to add nodes to search terms");
+    }
+
+    function SearchButton() {
+        q = $("#q").val();
+        getFDNodes(q);
+    }
+
+    function LoadHomePage() {
+        // Redirect to graph with current query
+        location.href = "/home/index?q=" + $("#q").val();
+    }
+
+</script>
+

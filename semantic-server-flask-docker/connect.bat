@@ -1,0 +1,1 @@
+docker run -i -t --entrypoint /bin/bash %1

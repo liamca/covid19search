@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <head>
+    <title>Semantic Search</title>
+    <meta name="robots" content="index, follow" />
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/themes/github.css">
+	
+	<link rel="stylesheet" href="css/tagify.css">
+	<script src="js/tagify.js"></script>
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+	<script src="js/jQuery.tagify.min.js"></script>
+
+	
+  </head>
+
+    <div id="fb-root"></div>
+    <div class="container">
+      <section id="examples">
+        <!-- <div class="page-header"> -->
+          <!-- <h2>Examples</h2> -->
+        <!-- </div> -->
+
+        <div class="example example_objects_as_tags">
+          <h3>Corona Content Search</h3>
+          <p>
+            Search and choose terms from list to find relevent content based on semantic similarity.
+          </p>
+		  <input type="text" name="input" />
+		  <p id="suggestionsDiv"></p>
+		  <p id="searchResultsDiv0"></p><hr>
+		  <p id="searchResultsDiv1"></p><hr>
+		  <p id="searchResultsDiv2"></p><hr>
+		  <p id="searchResultsDiv3"></p><hr>
+		  <p id="searchResultsDiv4"></p><hr>
+		  <p id="searchResultsDiv5"></p><hr>
+		  <p id="searchResultsDiv6"></p><hr>
+		  <p id="searchResultsDiv7"></p><hr>
+		  <p id="searchResultsDiv8"></p><hr>
+		  <p id="searchResultsDiv9"></p><hr>
+		  <p id="searchResultsDiv10"></p><hr>
+		  <p id="searchResultsDiv11"></p><hr>
+		  <p id="searchResultsDiv12"></p><hr>
+		  <p id="searchResultsDiv13"></p><hr>
+		  <p id="searchResultsDiv14"></p><hr>
+		  <p id="searchResultsDiv15"></p><hr>
+		  <p id="searchResultsDiv16"></p><hr>
+		  <p id="searchResultsDiv17"></p><hr>
+		  <p id="searchResultsDiv18"></p><hr>
+		  <p id="searchResultsDiv19"></p><hr>
+        </div>
+    </div>
+
+	<script>
+		
+		var input = document.querySelector('input[name=input]'),
+				whitelist = [],
+
+				// init Tagify script on the above inputs
+				tagify = new Tagify(input, {
+					keepInvalidTags: true,
+					duplicates: false,
+					dropdown: 
+					{
+						fuzzySearch: true
+					}
+					// after 2 characters typed, all matching values from this list will be suggested in a dropdown
+					// whitelist: [].concat(whitelist)
+				})
+		
+
+
+		// Chainable event listeners
+		tagify.on('add', onAddTag)
+			  .on('remove', onRemoveTag)
+			  .on('input', onInput)
+			  //.on('edit', onTagEdit)
+			  //.on('invalid', onInvalidTag)
+			  //.on('click', onTagClick)
+			  //.on('focus', onTagifyFocusBlur)
+			  //.on('blur', onTagifyFocusBlur)
+			  .on('dropdown:hide dropdown:show', e => console.log(e.type))
+			  .on('dropdown:select', onDropdownSelect)
+
+		
+
+
+		// tag added callback
+		function onAddTag(e){
+			console.log("onAddTag: ", e.detail);
+			console.log("original input value: ", input.value)
+			tagify.off('add', onAddTag) // exmaple of removing a custom Tagify event
+		}
+
+		// tag remvoed callback
+		function onRemoveTag(e){
+			//console.log("onRemoveTag:", e.detail, "tagify instance value:", tagify.value)
+			findSimilarTerms(e.detail.value)
+		}
+
+		// on character(s) added/removed (user is typing/deleting)
+		function onInput(e){
+			//console.log("onInput: ", e.detail);
+			tagify.settings.whitelist.length = 0; // reset current whitelist
+			tagify.loading(true).dropdown.hide.call(tagify) // show the loader animation
+
+			execTypeAhead(e.detail.value)
+			  .then(data => {
+				//console.log(data)
+				tagify.settings.whitelist.splice(0, data.length, ...data)
+				// render the suggestions dropdown. "newValue" is when "input" event is called while editing a tag
+				tagify.loading(false).dropdown.show.call(tagify, e.detail.value);
+			  })
+			  .catch(error => {
+				console.log(error)
+			  })
+		}
+
+		<!-- function onTagEdit(e){ -->
+			<!-- console.log("onTagEdit: ", e.detail); -->
+		<!-- } -->
+
+		<!-- // invalid tag added callback -->
+		<!-- function onInvalidTag(e){ -->
+			<!-- console.log("onInvalidTag: ", e.detail); -->
+		<!-- } -->
+
+		<!-- // invalid tag added callback -->
+		<!-- function onTagClick(e){ -->
+			<!-- console.log(e.detail); -->
+			<!-- console.log("onTagClick: ", e.detail); -->
+		<!-- } -->
+
+		<!-- function onTagifyFocusBlur(e){ -->
+			<!-- console.log(e.type, "event fired") -->
+		<!-- } -->
+
+		function onDropdownSelect(e){
+			// User chose an item, so do a vector search to find potentially similar terms
+			//console.log("onDropdownSelect: ", e.detail)
+			findSimilarTerms(e.detail.value)
+		}
+		
+		function addTag(tag)
+		{
+			tagify.addTags(tag)
+			findSimilarTerms(tag)
+		}
+		
+		function findSimilarTerms(new_term)
+		{
+			// Get all the terms added to the search box
+			existing_terms = eval($("input").val())
+			term_list = []
+			if (new_term != undefined)
+				term_list = [new_term]
+				
+			if (existing_terms != undefined)
+				for (var term in existing_terms)
+					term_list.push(existing_terms[term]["value"])
+				
+			$("#suggestionsDiv").html("Finding similar terms...")
+
+			if (term_list.length > 0)
+				execFindSimilarTerms(term_list)
+				  .then(data => {
+					console.log(data)
+					
+					htmlString = '<b>Similar Terms:</b> '
+					for (item in data)
+						if (term_list.includes(data[item]) == false)
+							htmlString += '<a href="javascript:void(0)" onclick="addTag(\'' + data[item].trim() + '\')">' + data[item] + '</a>&nbsp;&nbsp;&nbsp;'
+					
+					$("#suggestionsDiv").html(htmlString + '<hr>')
+					
+					
+					<!-- tagify.settings.whitelist.splice(0, data.length, ...data) -->
+					<!-- tagify.loading(false).dropdown.show.call(tagify, e.detail.value); -->
+				  })
+				  .catch(error => {
+					console.log(error)
+					$("#suggestionsDiv").html("Error:" + error)
+
+				  })
+			else
+				$("#suggestionsDiv").html("")
+
+		}
+		
+	</script>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/js/rainbow.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/js/language/generic.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/js/language/html.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/js/language/javascript.js"></script>
+	
+	<script src="js/globals.js"></script>
+	<script src="js/search.js"></script>
+
+	
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism.min.css">
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/prism.min.js'></script>
+    <script>
+        setTimeout(function(){
+            Prism.highlightAll();
+        }, 500)
+    </script>
+
+
+{% endblock %}

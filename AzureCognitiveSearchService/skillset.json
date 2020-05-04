@@ -1,0 +1,441 @@
+{
+    "name": "covid19-skillset",
+    "description": "Apply concatenation, medical entity extraction, and other skills for COVID-19 data processing",
+    "skills": [
+      {
+        "@odata.type": "#Microsoft.Skills.Text.MergeSkill",
+        "name": "MergeBody",
+        "description": "",
+        "context": "/document",
+        "insertPreTag": "",
+        "insertPostTag": "",
+        "inputs": [
+          {
+            "name": "itemsToInsert",
+            "source": "/document/body_text/*/text"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "mergedText",
+            "targetName": "body"
+          }
+        ]
+      },
+      {
+        "@odata.type": "#Microsoft.Skills.Text.MergeSkill",
+        "name": "MergeAbstract",
+        "description": "",
+        "context": "/document",
+        "insertPreTag": "",
+        "insertPostTag": "",
+        "inputs": [
+          {
+            "name": "itemsToInsert",
+            "source": "/document/abstract/*/text"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "mergedText",
+            "targetName": "abstractContent"
+          }
+        ]
+      },
+      {
+        "@odata.type": "#Microsoft.Skills.Custom.WebApiSkill",
+        "name": "NameConcat",
+        "description": "Name concatenation custom skill",
+        "uri": "https://nameconcatenator.azurewebsites.net/api/Concatenator?code=TODO",        
+          "context": "/document/metadata/authors",
+          "inputs": [
+            {
+              "name": "authors",
+              "source": "/document/metadata/authors"
+            }
+          ],
+          "outputs": [
+            {
+              "name": "text",
+              "targetName": "full_name"
+            }
+          ]
+      },
+      {
+        "@odata.type": "#Microsoft.Skills.Custom.WebApiSkill",
+        "name": "InvokeTAHealthExtraction",
+        "description": "Custom skill to call the Microsoft Text Analytics Health entity extraction",
+        "uri": "https://invokehealthentityextraction.azurewebsites.net/api/InvokeHealthEntityExtraction?code=TODO",
+        "timeout": "PT230S",
+        "context": "/document",
+          "inputs": [
+            {
+              "name": "title",
+              "source": "/document/metadata/title"
+            },
+            {
+              "name": "abstract",
+              "source": "/document/abstract/*/text"
+            },
+            {
+              "name": "body",
+              "source": "/document/body_text/*/text"
+            }
+          ],
+          "outputs": [
+            {
+              "name": "bodyStructure",
+              "targetName": "bodyStructure"
+            },
+            {
+              "name": "conditionQualifier",
+              "targetName": "conditionQualifier"
+            },
+            {
+              "name": "diagnosis",
+              "targetName": "diagnosis"
+            },
+            {
+              "name": "direction",
+              "targetName": "direction"
+            },
+            {
+              "name": "examinationName",
+              "targetName": "examinationName"
+            },
+            {
+              "name": "examinationRelation",
+              "targetName": "examinationRelation"
+            },
+            {
+              "name": "familyRelation",
+              "targetName": "familyRelation"
+            },
+            {
+              "name": "gender",
+              "targetName": "gender"
+            },
+            {
+              "name": "gene",
+              "targetName": "gene"
+            },
+            {
+              "name": "medicationClass",
+              "targetName": "medicationClass"
+            },
+            {
+              "name": "medicationName",
+              "targetName": "medicationName"
+            },
+            {
+              "name": "routeOrMode",
+              "targetName": "routeOrMode"
+            },
+            {
+              "name": "symptomOrSign",
+              "targetName": "symptomOrSign"
+            },
+            {
+              "name": "treatmentName",
+              "targetName": "treatmentName"
+            },
+            {
+              "name": "variant",
+              "targetName": "variant"
+            }
+          ]
+      },
+      {
+        "@odata.type": "#Microsoft.Skills.Util.ShaperSkill",
+        "name": "ShapeBlobStorageProjection",
+        "description": null,
+        "context": "/document",
+        "inputs": [
+          {
+            "name": "paper_id",
+            "source": "/document/paper_id"
+          },
+          {
+            "name": "title",
+            "source": "/document/metadata/title"
+          },
+          {
+            "name": "metadata",
+            "source": "/document/metadata"
+          },
+          {
+            "name": "abstract",
+            "source": "/document/abstract"
+          },
+          {
+            "name": "body_text",
+            "source": "/document/body_text"
+          },
+          {
+            "name": "abstractContent",
+            "source": "/document/abstractContent"
+          },
+          {
+            "name": "body",
+            "source": "/document/body"
+          },
+          {
+            "name": "full_name",
+            "source": "/document/metadata/authors/full_name"
+          },
+          {
+            "name": "metadata_storage_content_type",
+            "source": "/document/metadata_storage_content_type"
+          },
+          {
+            "name": "metadata_storage_size",
+            "source": "/document/metadata_storage_size"
+          },
+          {
+            "name": "metadata_storage_last_modified",
+            "source": "/document/metadata_storage_last_modified"
+          },
+          {
+            "name": "metadata_storage_content_md5",
+            "source": "/document/metadata_storage_content_md5"
+          },
+          {
+            "name": "metadata_storage_name",
+            "source": "/document/metadata_storage_name"
+          },
+          {
+            "name": "metadata_storage_path",
+            "source": "/document/metadata_storage_path"
+          },
+          {
+            "name": "bodyStructure",
+            "source": "/document/bodyStructure"
+          },
+          {
+            "name": "conditionQualifier",
+            "source": "/document/conditionQualifier"
+          },
+          {
+            "name": "diagnosis",
+            "source": "/document/diagnosis"
+          },
+          {
+            "name": "direction",
+            "source": "/document/direction"
+          },
+          {
+            "name": "examinationName",
+            "source": "/document/examinationName"
+          },
+          {
+            "name": "examinationRelation",
+            "source": "/document/examinationRelation"
+          },
+          {
+            "name": "familyRelation",
+            "source": "/document/familyRelation"
+          },
+          {
+            "name": "gender",
+            "source": "/document/gender"
+          },
+          {
+            "name": "gene",
+            "source": "/document/gene"
+          },
+          {
+            "name": "medicationClass",
+            "source": "/document/medicationClass"
+          },
+          {
+            "name": "medicationName",
+            "source": "/document/medicationName"
+          },
+          {
+            "name": "routeOrMode",
+            "source": "/document/routeOrMode"
+          },
+          {
+            "name": "symptomOrSign",
+            "source": "/document/symptomOrSign"
+          },
+          {
+            "name": "treatmentName",
+            "source": "/document/treatmentName"
+          },
+          {
+            "name": "variant",
+            "source": "/document/variant"
+          }      
+        ],
+        "outputs": [
+          {
+            "name": "output",
+            "targetName": "objectprojection"
+          }
+        ]
+      },
+      {
+        "@odata.type": "#Microsoft.Skills.Util.ShaperSkill",
+        "name": "ShapeTableStorageProjection",
+        "description": null,
+        "context": "/document",
+        "inputs": [
+          {
+            "name": "paper_id",
+            "source": "/document/paper_id"
+          },
+          {
+            "name": "title",
+            "source": "/document/metadata/title"
+          },
+          {
+            "name": "metadata",
+            "source": "/document/metadata"
+          },
+          {
+            "name": "abstract",
+            "source": "/document/abstract"
+          },
+          {
+            "name": "body_text",
+            "source": "/document/body_text"
+          },
+          {
+            "name": "abstractContent",
+            "source": "/document/abstractContent"
+          },
+          {
+            "name": "body",
+            "source": "/document/body"
+          },
+          {
+            "name": "full_name",
+            "source": "/document/metadata/authors/full_name"
+          },
+          {
+            "name": "metadata_storage_content_type",
+            "source": "/document/metadata_storage_content_type"
+          },
+          {
+            "name": "metadata_storage_size",
+            "source": "/document/metadata_storage_size"
+          },
+          {
+            "name": "metadata_storage_last_modified",
+            "source": "/document/metadata_storage_last_modified"
+          },
+          {
+            "name": "metadata_storage_content_md5",
+            "source": "/document/metadata_storage_content_md5"
+          },
+          {
+            "name": "metadata_storage_name",
+            "source": "/document/metadata_storage_name"
+          },
+          {
+            "name": "metadata_storage_path",
+            "source": "/document/metadata_storage_path"
+          },
+          {
+            "name": "bodyStructure",
+            "source": "/document/bodyStructure"
+          },
+          {
+            "name": "conditionQualifier",
+            "source": "/document/conditionQualifier"
+          },
+          {
+            "name": "diagnosis",
+            "source": "/document/diagnosis"
+          },
+          {
+            "name": "direction",
+            "source": "/document/direction"
+          },
+          {
+            "name": "examinationName",
+            "source": "/document/examinationName"
+          },
+          {
+            "name": "examinationRelation",
+            "source": "/document/examinationRelation"
+          },
+          {
+            "name": "familyRelation",
+            "source": "/document/familyRelation"
+          },
+          {
+            "name": "gender",
+            "source": "/document/gender"
+          },
+          {
+            "name": "gene",
+            "source": "/document/gene"
+          },
+          {
+            "name": "medicationClass",
+            "source": "/document/medicationClass"
+          },
+          {
+            "name": "medicationName",
+            "source": "/document/medicationName"
+          },
+          {
+            "name": "routeOrMode",
+            "source": "/document/routeOrMode"
+          },
+          {
+            "name": "symptomOrSign",
+            "source": "/document/symptomOrSign"
+          },
+          {
+            "name": "treatmentName",
+            "source": "/document/treatmentName"
+          },
+          {
+            "name": "variant",
+            "source": "/document/variant"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "output",
+            "targetName": "tableprojection"
+          }
+        ]
+      }
+    ],
+    "cognitiveServices": {
+      "@odata.type": "#Microsoft.Azure.Search.CognitiveServicesByKey",
+      "description": "This is a Cognitive Services all-in-one key.",
+      "key": "TODO"
+    },
+    "knowledgeStore": {
+      "storageConnectionString": "TODO",
+      "projections": [
+        {
+          "tables": [
+            {
+              "tableName": "portalSkillsetDocument",
+              "referenceKeyName": null,
+              "generatedKeyName": "Documentid",
+              "source": "/document/tableprojection",
+              "sourceContext": null,
+              "inputs": []
+            }
+          ],
+          "objects": [
+            {
+              "storageContainer": "small-knowledge-store",
+              "referenceKeyName": null,
+              "generatedKeyName": null,
+              "source": "/document/objectprojection",
+              "sourceContext": null,
+              "inputs": []
+            }
+          ]
+        }
+      ]
+    }
+  }

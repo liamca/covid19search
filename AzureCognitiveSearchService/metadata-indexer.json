@@ -1,0 +1,49 @@
+{
+    "name": "metadata-indexer",
+    "description": "This indexer pulls metadata about the COVID-19 research papers from a given csv file into the index.",
+    "dataSourceName": "metadata-ds",
+    "targetIndexName": "covid19-index",
+    "parameters": {
+      "batchSize": null,
+      "maxFailedItems": 0,
+      "maxFailedItemsPerBatch": 0,
+      "base64EncodeKeys": null,
+      "configuration": {
+        "dataToExtract": "contentAndMetadata",
+        "parsingMode": "delimitedText",
+        "firstLineContainsHeaders": true,
+        "delimitedTextDelimiter": ",",
+        "delimitedTextHeaders": ""
+      }
+    },
+    "fieldMappings": [
+      {
+        "sourceFieldName": "sha",
+        "targetFieldName": "docID",
+        "mappingFunction": {
+          "name": "base64Encode"
+        }
+      },
+      {
+        "sourceFieldName": "publish_time",
+        "targetFieldName": "pubDate"
+      },
+      {
+        "sourceFieldName": "journal",
+        "targetFieldName": "journalId"
+      },
+      {
+        "sourceFieldName": "url",
+        "targetFieldName": "url"
+      }, 
+      {
+          "sourceFieldName": "abstract",
+          "targetFieldName": "metadata_abstract"
+      },
+      {
+          "sourceFieldName": "title",
+          "targetFieldName": "metadata_title"
+      }
+    ],
+    "outputFieldMappings": []
+}
