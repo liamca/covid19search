@@ -1,7 +1,7 @@
 {
   "name": "covid19-indexer",
   "description": "This indexer pulls data from the json files and runs them through the covid19 skillset.",
-  "dataSourceName": "small-ds-2",
+  "dataSourceName": "covid19-ds",
   "skillsetName": "covid19-skillset",
   "targetIndexName": "covid19-index",
   "disabled": null,
