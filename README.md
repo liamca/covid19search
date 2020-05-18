@@ -1,5 +1,7 @@
 # Covid-19 Search App - Code Repository
 
+![Covid-19 Search App](https://github.com/liamca/covid19search/raw/master/web-app/covid-search-app.png)
+
 ## Overview
 
 Source Code Repository for the Cognitive Search based [Covid-19 Search App](https://covid19search.azurewebsites.net/)
