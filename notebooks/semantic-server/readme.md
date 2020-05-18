@@ -20,17 +20,16 @@ It is important that you leverage a Ubuntu based VM as FastText works better on 
 
 * 02-terms-to-avg-bm25-v2.ipynb: For each term, the releative importance of the term in the corpus is calculated and stored in a SQLite database.  
 
-* 03-fasttext.ipynb: The actual 
+* 03-fasttext.ipynb: The actual processing of the terms to find the term embeddings is done in this step.
 
-* 04-load-vectors-to-sptag.ipynb: 
+* 04-load-vectors-to-sptag.ipynb: The resulting embeddings are loaded into a SPTag index.
 
-* 05-load-vectors-and-bm25-to-sqlite.ipynb: 
+* 05-load-vectors-and-bm25-to-sqlite.ipynb: The terms and their associated embeddings are loaded into a SQLIte database.
 
-* 06-terms-to-avg-vector.ipynb: 
+* 06-terms-to-avg-vector.ipynb: Using the data calculated in the BM25 algorithm a document embedding is created to define the overall content in the document.
 
-* 07-load-doc-vectors-to-sptag.ipynb: 
+* 07-load-doc-vectors-to-sptag.ipynb:  The resulting embeddings for the document vectors are loaded into a SPTag index.
 
-* 08-load-doc-vectors-to-sqlite.ipynb: 
+* 08-load-doc-vectors-to-sqlite.ipynb:  The document ID's and their associated embeddings are loaded into a SQLIte database.
 
-* 09-upload-models-data-to-blob.ipynb: 
-
+* 09-upload-models-data-to-blob.ipynb: All of the SPTag and SQLite databases created in the previous 4 steps are uploaded to Azure Blob. 
