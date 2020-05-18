@@ -4,15 +4,23 @@ This is an optional step for this search application, but has shown to be an eff
 
 This section also includes some additional experimentation including the leveraging of the BM25 algorithm to provide more relevancy to words that are deemed to be interesting words (meaning words like "treatment" would be given more weighting than words like "was").  Document embedding are also created, but this is not yet used in the search app.
 
+After the embeddings are created, they are stored into [SPTag](https://github.com/microsoft/SPTAG) which is a vector search library provided by Bing to quickly and efficiently provide a vector and find it's closes match.  Many people use [FAISS](https://github.com/facebookresearch/faiss), although I found SPTag to work well for the purpose of this application.
+
+Please ensure that you have downloaded and installed [FastText](https://github.com/facebookresearch/fastText#requirements) onto this machine.
+
+SQLite is also used to allow the search application to quickly look up the embedding for a search term entered by the user.
+
 It is important that you leverage a Ubuntu based VM as FastText works better on this than Windows.
 
 ### Files
 
-* 00-download-json-blobs-to-terms.ipynb: 
+* globals.py: This is where you set the parameters that will be used by the subsequent notebooks. It is most important to ensure that you add the Azure Blob Storage credentials and service details. You may also need to change the paths used to suit your machine.
 
-* 02-terms-to-avg-bm25-v2.ipynb: 
+* 00-download-json-blobs-to-terms.ipynb: This first step takes all of the JSON files that contain the research journals and format it in a way that FastText will require.  This also uses lemmatization to map words to a similar root so that words like run, runner and running would be mapped to a single word "run".  We also only include nouns (NN), Verbs (VB) and adjectives (JJ).  This is done to help reduce noise words.
 
-* 03-fasttext.ipynb: 
+* 02-terms-to-avg-bm25-v2.ipynb: For each term, the releative importance of the term in the corpus is calculated and stored in a SQLite database.  
+
+* 03-fasttext.ipynb: The actual 
 
 * 04-load-vectors-to-sptag.ipynb: 
 
