@@ -14,14 +14,14 @@ If you also created the Semantic Search Server, you will need to update the "Sem
 
 <code>
     add key="SemanticServer" value="http://[IP Address of Semantic Server Container]"
-    
+
 </code>
 
 If you wish to enable the document summarization when you click on a document, please reach out to Agolo (sales@agolo.com) and enter the associated server and API Key.
 
 <code>
     add key="AgoloServer" value="https://api.agolo.com/nlp/v0.2/summarize"
-    
+
     add key="AgoloAPIKey" value="[Send Email to sales@agolo.com to get Key]"
 </code>
 
