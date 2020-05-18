@@ -6,3 +6,13 @@ In many cases the Indexer is not viable and a mechanism to allow data to be prog
 
 This section of the repository includes a set of notebooks that show how to programatically extract the content from the data source, enrich it and then push it into the data source.
 
+### Notebook Details
+
+* 01-Download latest publications.ipynb
+
+
+02-Create-Search-Index.ipynb	Initial Checkin	14 days ago
+03-Upload-JSON-to-Azure-Search.ipynb	Initial Checkin	14 days ago
+04-Apply-Metadata.ipynb	Initial Checkin	14 days ago
+05-download-umls-concepts.ipynb	Initial Checkin	14 days ago
+06-Upload-Concepts-to-Azure-Search.ipynb
