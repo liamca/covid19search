@@ -1,5 +1,7 @@
 ### Covid-19 Search Application
 
+![Covid-19 Search App](https://github.com/liamca/covid19search/raw/master/web-app/covid-search-app.png)
+
 This is an MVC based application the provided the code needed to create the Web based UI for the Covid Search application.  All that you should need to do is update the web.config to point to your Azure Cognitive Search service.
 
 * add key="SearchServiceName" value="[Enter Search Service - do not included .search.windows.net"
