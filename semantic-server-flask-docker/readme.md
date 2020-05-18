@@ -9,27 +9,40 @@ This is an optional step for this search application, but has shown to be an eff
 * Docker Desktop
 * Azure Container Registry with associcated password
 
-
 ### Download SPTag and SQLite indexes
 
 In [this step](https://github.com/liamca/covid19search/tree/master/notebooks/semantic-server) you would have created a set of term and doument embedding and stored them in a set of SPTag and SQLite indexes and uploaded them to Azure Blob Storage.  We will need to download these and place them in the /data directory.  download_latest_model_data_from_blob.py provides some code on how to do this, however, you will need to enter your Azure Blob container details and credentials.
 
 ### Building the Container
 
-The (Linux) container can be built using the command: docker build -t vector-search-flask-sptag-covid19:latest .
+The (Linux) container can be built using the command: 
+
+<code>
+docker build -t vector-search-flask-sptag-covid19:latest .
+</code>
 
 ### Tag the Image
 
-We will tag the image as "vector-search-flask-sptag-covid19:latest" with the command: docker tag vector-search-flask-sptag-covid19:latest [Azure Container Registry].azurecr.io/containers/vector-search-flask-sptag-covid19
+We will tag the image as "vector-search-flask-sptag-covid19:latest" with the command: 
+
+<code>
+docker tag vector-search-flask-sptag-covid19:latest [Azure Container Registry].azurecr.io/containers/vector-search-flask-sptag-covid19
+</code>
 
 ### Upload Images to Azure Container Registry 
 
 Before you do this, you will need to connect to your Azure Container Registry.  For more details on how to do this, [visit](https://docs.microsoft.com/en-us/azure/container-registry/container-registry-get-started-docker-cli).
 
-Upload the image using the command: docker push [Azure Container Registry Name].azurecr.io/containers/vector-search-flask-sptag-covid19
+Upload the image using the command: 
+
+<code>
+docker push [Azure Container Registry Name].azurecr.io/containers/vector-search-flask-sptag-covid19
+</code>
 
 ### Create the Azure Container Instance
 
 Once the container image has been uploaded, we can create the container instance using the following command:
 
+</code>
 az container create -g [Resource Group] --name vector-search-flask-sptag-covid19 --image [Azure Container Registry].azurecr.io/containers/vector-search-flask-sptag-covid19 --ip-address public --cpu 2 --memory 16 --registry-username [Registry UserName] --registry-password [Registry Password]
+<code>
