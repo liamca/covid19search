@@ -9,7 +9,8 @@ This set of notebooks was run on a Ubuntu based Azure Data Science VM.
 
 ### Notebook Details
 
-* globals.py: This is where you set the parameters that will be used by the subsequent notebooks.  It is most important to ensure that you add the Azure Cognitive Search as well as the Azure Blob Storage credentials and service details.  It is important that you have created a Text Analytics for Health container and updated the details of where this can be called.  You can test this with the test-ta-health-container.ipynb.  You may also need to change the paths used to suit your machine.  
+* globals.py: This is where you set the parameters that will be used by the subsequent notebooks.  It is most important to ensure that you add the Azure Cognitive Search as well as the Azure Blob Storage credentials and service details.  It is important that you have created a [Text Analytics for Health container](https://aka.ms/request-ta-for-health 
+) and updated the details of where this can be called.  You can test this with the test-ta-health-container.ipynb.  You may also need to change the paths used to suit your machine.  
 
 * 01-Download latest publications.ipynb: This notebook downloads and extracts the .tar.gz JSON files that contain the research journal information as well as a metadata.csv file that contains additional details about the journals such as contributor names.
 
