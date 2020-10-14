@@ -10,7 +10,8 @@ from pathlib import Path
 import shutil
 from shutil import rmtree
 
-files_dir = '/datadrive/processed/content'
+files_dir = '/datadrive2/processed/content'
+
 
 #blob 
 blob_account_name = [Container Name]
@@ -33,9 +34,11 @@ ta_processing_dir = '/datadrive/processed/ta'
 ta_processed_json_dir = '/datadrive/processed/ta-json'
 
 
+
+
 # UMLS Concepts
-umls_dir = '/datadrive/processed/umls'
-conso_url = 'https://' [Location of File] '.blob.core.windows.net/covid-19/umls-2019AB-mrconso.zip'
+umls_dir = '/datadrive2/processed/umls'
+conso_url = 'https://azsdemos.blob.core.windows.net/covid-19/umls-2019AB-mrconso.zip'
 local_conso_file = os.path.join(umls_dir, 'umls-2019AB-mrconso.zip')
 concepts_file = os.path.join(umls_dir, 'MRCONSO.RRF')
 
