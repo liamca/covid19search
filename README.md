@@ -28,7 +28,7 @@ Data is pulled from two folders in the same Azure blob storage container. The ma
 
 First, you will need an Azure account.  If you don't already have one, you can start a free trial of Azure [here](https://azure.microsoft.com/free/).  
 
-Secondly, our implementation uses the Text Analytics for Health container for medical entity extraction.  It is currently in private preview.  To request access to the Text Analytics for Health container private preview, please visit <https://aka.ms/request-ta-for-health>.  Once you have received access, you will need to set up the container as instructed in their README.  Then, you will need to update the InvokeHealthEntityExtraction Azure function with the location of your running container.  You will also need to download a file umls_concept_dict.pickle that is too big to host on GitHub, which will allow lookup of [UMLS](https://www.nlm.nih.gov/research/umls/index.html) entities.  
+Secondly, our implementation uses the [Text Analytics for Health](https://docs.microsoft.com/en-us/azure/cognitive-services/text-analytics/how-tos/text-analytics-for-health?tabs=ner) container for medical entity extraction.  Once you have received access, you will need to set up the container as instructed in their README.  Then, you will need to update the InvokeHealthEntityExtraction Azure function with the location of your running container.  You will also need to download a file umls_concept_dict.pickle that is too big to host on GitHub, which will allow lookup of [UMLS](https://www.nlm.nih.gov/research/umls/index.html) entities.  
 
 Specifically, in the InvokeHealthEntityExtraction\InvokeHealthEntityExtraction folder:
 
